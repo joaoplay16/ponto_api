@@ -1,0 +1,19 @@
+version: "3.2"
+services:
+  ponto_api:
+    image: node:alpine
+    container_name: ponto_api
+    restart: always
+    env_file: 
+      - .env
+    ports: 
+      - 8088:8088
+    volumes: 
+      - .:/usr/app/
+    working_dir: /usr/app/
+    command: "npx tsx watch src/index.ts"
+    logging: 
+      driver: "json-file"
+      options: 
+        max-size: "10m"
+        max-file: "5"             
