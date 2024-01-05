@@ -3,3 +3,4 @@
 *lock
 *lock.json
 .vscode/settings.json
+.env
