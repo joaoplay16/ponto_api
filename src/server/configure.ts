@@ -8,7 +8,7 @@ var routes = require("./routes"),
 module.exports = function (app: Application) {
   app.use(morgan("dev"))
   app.use(express.urlencoded({ extended: true }))
-
+  app.use(express.json())
   const router = routes.initialize(express.Router())
 
   app.use("/", router)
