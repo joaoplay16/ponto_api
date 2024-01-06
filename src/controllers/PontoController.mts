@@ -1,7 +1,7 @@
 const Ponto = require("../models/Ponto")
 import { type Request, type Response } from "express"
 import type Ponto from "../types/ponto"
-
+import { Sequelize } from "sequelize"
 const PontoController = {
   async index(req: Request, res: Response): Promise<void> {
     try {
@@ -12,6 +12,12 @@ const PontoController = {
         where: {
           usuario_id: id_usuario,
         },
+        attributes: [
+          "data",
+          [Sequelize.fn("dayofweek", Sequelize.col("data")), "dia_da_semana"],
+          "hora_entrada",
+          "hora_saida",
+        ],
         limit: parseInt(limit as string) || 20,
         offset: parseInt(offset as string) || 0,
       })
