@@ -76,6 +76,7 @@ const PontoController = {
           ],
         ],
         group: ["usuario_id", "data"],
+        order: [["data", "DESC"]],
         limit: parseInt(limit as string) || 20,
         offset: parseInt(offset as string) || 0,
       })
