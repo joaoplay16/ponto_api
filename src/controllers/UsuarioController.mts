@@ -6,7 +6,12 @@ import bcrypt from "bcrypt"
 const UsuarioController = {
   async index(req: Request, res: Response): Promise<void> {
     try {
-      const usuarios: Usuario[] = await Usuario.findAll()
+      const { limit, offset } = req.query
+
+      const usuarios: Usuario[] = await Usuario.findAndCountAll({
+        limit: parseInt(limit as string) || 20,
+        offset: parseInt(offset as string) || 0,
+      })
       if (usuarios != null) {
         res.json(usuarios)
       } else {
