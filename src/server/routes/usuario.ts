@@ -11,6 +11,7 @@ module.exports = function (router: Router) {
   router.post("/usuario/criar", UsuarioController.save)
 
   router.get("/usuario/:id_usuario/pontos", PontoController.index)
+  router.get("/usuario/:id_usuario/relatorio", PontoController.userReport)
 
   return router
 }
