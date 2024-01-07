@@ -6,9 +6,10 @@ import bcrypt from "bcrypt"
 const UsuarioController = {
   async index(req: Request, res: Response): Promise<void> {
     try {
-      const { limit, offset } = req.query
+      const { limit, offset, cargo} = req.query
 
       const usuarios: Usuario[] = await Usuario.findAndCountAll({
+        where: {...(cargo && {cargo})},
         limit: parseInt(limit as string) || 20,
         offset: parseInt(offset as string) || 0,
         order: [["nome", "ASC"]],
