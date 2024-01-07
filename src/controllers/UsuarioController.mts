@@ -11,6 +11,7 @@ const UsuarioController = {
       const usuarios: Usuario[] = await Usuario.findAndCountAll({
         limit: parseInt(limit as string) || 20,
         offset: parseInt(offset as string) || 0,
+        order: [["nome", "ASC"]],
       })
       if (usuarios != null) {
         res.json(usuarios)
