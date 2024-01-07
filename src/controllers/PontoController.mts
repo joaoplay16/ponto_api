@@ -1,7 +1,7 @@
 const Ponto = require("../models/Ponto")
 import { type Request, type Response } from "express"
 import type Ponto from "../types/ponto"
-import { Sequelize } from "sequelize"
+import { Sequelize, Op } from "sequelize"
 const PontoController = {
   async index(req: Request, res: Response): Promise<void> {
     try {
@@ -24,6 +24,64 @@ const PontoController = {
 
       if (pontosPaginados != null) {
         res.json(pontosPaginados)
+      } else {
+        res.status(404).json({ error: "Nenhum registro de ponto encontrado" })
+      }
+    } catch (error) {
+      console.error("Erro ao buscar registros de ponto:", error)
+      res.status(500).json({ error: "Erro interno do servidor" })
+    }
+  },
+
+  async userReport(req: Request, res: Response): Promise<void> {
+    try {
+      const { id_usuario } = req.params
+      const { limit, offset, mes, ano } = req.query
+
+      const pontosPaginados = await Ponto.findAll({
+        where: {
+          usuario_id: id_usuario,
+          [Op.and]: [
+            mes &&
+              Sequelize.where(
+                Sequelize.fn("month", Sequelize.col("data")),
+                mes
+              ),
+            ano &&
+              Sequelize.where(Sequelize.fn("year", Sequelize.col("data")), ano),
+          ],
+        },
+        attributes: [
+          "data",
+          [Sequelize.fn("dayofweek", Sequelize.col("data")), "dia_da_semana"],
+          [
+            Sequelize.fn(
+              "SEC_TO_TIME",
+              Sequelize.fn(
+                "SUM",
+                Sequelize.fn(
+                  "ABS",
+                  Sequelize.fn(
+                    "TIME_TO_SEC",
+                    Sequelize.fn(
+                      "TIMEDIFF",
+                      Sequelize.col("hora_entrada"),
+                      Sequelize.col("hora_saida")
+                    )
+                  )
+                )
+              )
+            ),
+            "horas_trabalhadas",
+          ],
+        ],
+        group: ["usuario_id", "data"],
+        limit: parseInt(limit as string) || 20,
+        offset: parseInt(offset as string) || 0,
+      })
+
+      if (pontosPaginados != null) {
+        res.json({ count: pontosPaginados.length, rows: pontosPaginados })
       } else {
         res.status(404).json({ error: "Nenhum registro de ponto encontrado" })
       }
