@@ -91,6 +91,72 @@ const PontoController = {
     }
   },
 
+  async usersReport(req: Request, res: Response): Promise<void> {
+    try {
+      const { limit, offset, mes, ano, cargo } = req.query
+
+      const pontosPaginados = await Ponto.findAll({
+        where: {
+          [Op.and]: [
+            mes &&
+              Sequelize.where(
+                Sequelize.fn("month", Sequelize.col("data")),
+                mes
+              ),
+            ano &&
+              Sequelize.where(Sequelize.fn("year", Sequelize.col("data")), ano),
+          ],
+        },
+        include: [
+          {
+            association: "usuario",
+            attributes: { exclude: ["senha"] },
+            where: {
+              ...(cargo && {cargo})
+            }
+          },
+        ],
+        attributes: [
+          "data",
+          [Sequelize.fn("dayofweek", Sequelize.col("data")), "dia_da_semana"],
+          [
+            Sequelize.fn(
+              "SEC_TO_TIME",
+              Sequelize.fn(
+                "SUM",
+                Sequelize.fn(
+                  "ABS",
+                  Sequelize.fn(
+                    "TIME_TO_SEC",
+                    Sequelize.fn(
+                      "TIMEDIFF",
+                      Sequelize.col("hora_entrada"),
+                      Sequelize.col("hora_saida")
+                    )
+                  )
+                )
+              )
+            ),
+            "horas_trabalhadas",
+          ],
+        ],
+        group: ["usuario_id", "data"],
+        order: [["data", "DESC"]],
+        limit: parseInt(limit as string) || 20,
+        offset: parseInt(offset as string) || 0,
+      })
+
+      if (pontosPaginados != null) {
+        res.json({ count: pontosPaginados.length, rows: pontosPaginados })
+      } else {
+        res.status(404).json({ error: "Nenhum registro de ponto encontrado" })
+      }
+    } catch (error) {
+      console.error("Erro ao buscar registros de ponto:", error)
+      res.status(500).json({ error: "Erro interno do servidor" })
+    }
+  },
+
   async details(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params
