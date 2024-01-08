@@ -2,6 +2,7 @@ const Usuario = require("../models/Usuario")
 import { type Request, type Response } from "express"
 import type Usuario from "../types/usuario"
 import bcrypt from "bcrypt"
+import { isEmail } from "../util/email"
 
 const UsuarioController = {
   async index(req: Request, res: Response): Promise<void> {
@@ -55,7 +56,14 @@ const UsuarioController = {
         )
       ) {
         res.status(400).json({
-          error: "Requisição inválida. Verifique os parâmetros fornecidos.",
+          error: "Requisição inválida. Verifique os parâmetros fornecidos."
+        })
+        return
+      }
+
+      if(!isEmail(email)){
+        res.status(400).json({
+          error: "Informe um e-mail válido.",
         })
         return
       }
