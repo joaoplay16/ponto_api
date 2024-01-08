@@ -2,6 +2,11 @@ const Usuario = require("../models/Usuario")
 import { type Request, type Response } from "express"
 import type Usuario from "../types/usuario"
 import bcrypt from "bcrypt"
+import { isEmail } from "../util/email"
+import sendMail, { EmailFields } from "../service/emailService"
+import { generateUserRegisterTemplate } from "../util/email"
+import dotenv from "dotenv"
+dotenv.config()
 
 const UsuarioController = {
   async index(req: Request, res: Response): Promise<void> {
@@ -47,23 +52,40 @@ const UsuarioController = {
     try {
       const usuario: Usuario = req.body
 
-      const { nome, email, nome_de_usuario, celular, senha } = usuario
+      const { nome, email, nome_de_usuario, celular } = usuario
 
       if (
-        ![nome, email, nome_de_usuario, celular, senha].every(
+        ![nome, email, nome_de_usuario, celular].every(
           (campo) => campo && campo.length > 0
         )
       ) {
         res.status(400).json({
-          error: "Requisição inválida. Verifique os parâmetros fornecidos.",
+          error: "Requisição inválida. Verifique os parâmetros fornecidos."
         })
         return
       }
 
-      const usuarioCriado = await Usuario.create(usuario)
+      if(!isEmail(email)){
+        res.status(400).json({
+          error: "Informe um e-mail válido.",
+        })
+        return
+      }
+
+      const { senha, ...usuarioSemASenha }: Usuario = usuario
+      
+      const usuarioCriado = await Usuario.create(usuarioSemASenha)
 
       if (usuarioCriado != null) {
         res.json(usuarioCriado)
+        sendMail({
+          to: email,
+          subject: "EmPonto - Continue seu cadastro",
+          html: generateUserRegisterTemplate(
+            nome,
+            `${process.env.USER_REGISTRATION_URL}?usuario=${nome_de_usuario}`
+          )
+        } as EmailFields)
       } else {
         res
           .status(500)
@@ -83,6 +105,52 @@ const UsuarioController = {
        return
       }
 
+      res.status(500).json({ error: "Erro interno do servidor", info: error })
+    }
+  },
+
+  // Define a senha do usuário pré-registrado
+  async register(req: Request, res: Response): Promise<void> {
+    try {
+
+      const { usuario: usuarioParam, senha } = req.body
+      
+      const usuario: Usuario = await Usuario.findOne({
+        where: {nome_de_usuario: usuarioParam}
+      })
+
+      if(usuario?.senha) {
+        res.status(409).json({
+          error: "Este usuário já foi cadastrado.",
+        })
+        return
+      }
+
+      var hashDaSenha = ""
+
+      if(senha){
+          if(senha.length >= 8){
+            hashDaSenha = bcrypt.hashSync(senha, 10)
+          }else{
+            res.status(400).json({
+              error: "A senha deve ter 8 ou mais caracteres.",
+            })
+            return
+          }
+      }
+
+      const resultado = await Usuario.update(
+        {senha: hashDaSenha},
+        {
+          where: { id: usuario.id },
+        }
+      )
+
+      res.json(resultado)
+      
+    } catch (error: any) {
+      console.error("Erro interno do servidor", error)
+      
       res.status(500).json({ error: "Erro interno do servidor", info: error })
     }
   },
