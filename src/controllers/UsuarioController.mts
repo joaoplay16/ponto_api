@@ -3,6 +3,10 @@ import { type Request, type Response } from "express"
 import type Usuario from "../types/usuario"
 import bcrypt from "bcrypt"
 import { isEmail } from "../util/email"
+import sendMail, { EmailFields } from "../service/emailService"
+import { generateUserRegisterTemplate } from "../util/email"
+import dotenv from "dotenv"
+dotenv.config()
 
 const UsuarioController = {
   async index(req: Request, res: Response): Promise<void> {
@@ -68,10 +72,20 @@ const UsuarioController = {
         return
       }
 
-      const usuarioCriado = await Usuario.create(usuario)
+      const { senha, ...usuarioSemASenha }: Usuario = usuario
+      
+      const usuarioCriado = await Usuario.create(usuarioSemASenha)
 
       if (usuarioCriado != null) {
         res.json(usuarioCriado)
+        sendMail({
+          to: email,
+          subject: "EmPonto - Continue seu cadastro",
+          html: generateUserRegisterTemplate(
+            nome,
+            `${process.env.USER_REGISTRATION_URL}?usuario=${nome_de_usuario}`
+          )
+        } as EmailFields)
       } else {
         res
           .status(500)
