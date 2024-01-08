@@ -1,7 +1,7 @@
 const Usuario = require("../models/Usuario")
 import { type Request, type Response } from "express"
 import type Usuario from "../types/usuario"
-import bcrypt from "bcrypt"import { isEmail } from "../util/email"
+import bcrypt from "bcrypt"
 
 const UsuarioController = {
   async index(req: Request, res: Response): Promise<void> {
@@ -83,6 +83,52 @@ const UsuarioController = {
        return
       }
 
+      res.status(500).json({ error: "Erro interno do servidor", info: error })
+    }
+  },
+
+  // Define a senha do usuário pré-registrado
+  async register(req: Request, res: Response): Promise<void> {
+    try {
+
+      const { usuario: usuarioParam, senha } = req.body
+      
+      const usuario: Usuario = await Usuario.findOne({
+        where: {nome_de_usuario: usuarioParam}
+      })
+
+      if(usuario?.senha) {
+        res.status(409).json({
+          error: "Este usuário já foi cadastrado.",
+        })
+        return
+      }
+
+      var hashDaSenha = ""
+
+      if(senha){
+          if(senha.length >= 8){
+            hashDaSenha = bcrypt.hashSync(senha, 10)
+          }else{
+            res.status(400).json({
+              error: "A senha deve ter 8 ou mais caracteres.",
+            })
+            return
+          }
+      }
+
+      const resultado = await Usuario.update(
+        {senha: hashDaSenha},
+        {
+          where: { id: usuario.id },
+        }
+      )
+
+      res.json(resultado)
+      
+    } catch (error: any) {
+      console.error("Erro interno do servidor", error)
+      
       res.status(500).json({ error: "Erro interno do servidor", info: error })
     }
   },
