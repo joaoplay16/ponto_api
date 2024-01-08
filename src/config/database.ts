@@ -8,4 +8,5 @@ module.exports = {
     timestamps: true,
     underscored: true,
   },
+  timezone: '-03:00', // for writing to database
 }
