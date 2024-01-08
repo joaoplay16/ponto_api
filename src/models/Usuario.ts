@@ -13,6 +13,7 @@ class Usuario extends Model {
       email: DataTypes.STRING,
       senha: DataTypes.STRING,
       celular: DataTypes.STRING,
+      criado_em: DataTypes.STRING,
       e_admin: DataTypes.INTEGER,
       ativo: DataTypes.INTEGER,
     }, {
