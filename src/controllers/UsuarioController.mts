@@ -108,15 +108,15 @@ const UsuarioController = {
 
       var hashDaSenha = ""
 
-      if(senha){
-          if(senha.length > 8){
-            hashDaSenha = bcrypt.hashSync(senha, 10)
-          }else{
-            res.status(400).json({
-              error: "A senha deve ter mais do 8 caracteres.",
-            })
-            return
-          }
+      if (senha) {
+        if (senha.length >= 8) {
+          hashDaSenha = bcrypt.hashSync(senha, 10)
+        } else {
+          res.status(400).json({
+            error: "A senha deve ter 8 ou mais caracteres.",
+          })
+          return
+        }
       }
      
       const usuarioAtualizado = {
