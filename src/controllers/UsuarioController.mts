@@ -1,7 +1,7 @@
 const Usuario = require("../models/Usuario")
 import { type Request, type Response } from "express"
 import type Usuario from "../types/usuario"
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt"import { isEmail } from "../util/email"
 
 const UsuarioController = {
   async index(req: Request, res: Response): Promise<void> {
@@ -47,10 +47,10 @@ const UsuarioController = {
     try {
       const usuario: Usuario = req.body
 
-      const { nome, email, nome_de_usuario, celular, senha } = usuario
+      const { nome, email, nome_de_usuario, celular } = usuario
 
       if (
-        ![nome, email, nome_de_usuario, celular, senha].every(
+        ![nome, email, nome_de_usuario, celular].every(
           (campo) => campo && campo.length > 0
         )
       ) {
