@@ -29,9 +29,11 @@ const UsuarioController = {
     try {
       const { id } = req.params
 
-      const usuario: Usuario = await Usuario.findByPk(id)
-      if (usuario != null) {
-        res.json(usuario)
+      var result = await Usuario.findByPk(id)
+      if (result != null) {
+        const { senha, ...usuarioSemASenha }: Usuario = result.dataValues;
+
+        res.json(usuarioSemASenha)
       } else {
         res.status(404).json({ error: "Usuário não encontrado" })
       }
