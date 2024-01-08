@@ -3,6 +3,7 @@ import { UsuarioController } from "../../controllers/index.mjs"
 import { PontoController } from "../../controllers/index.mjs"
 
 module.exports = function (router: Router) {
+  router.post("/usuario/registro", UsuarioController.register)
   router.get("/usuario/:id", UsuarioController.details)
   router.post("/usuario/criar", UsuarioController.save)
   router.post("/usuario/:id_usuario/atualizar", UsuarioController.update)
