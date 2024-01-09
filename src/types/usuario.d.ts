@@ -13,4 +13,7 @@ type Usuario = {
     pontos: Ponto[]
 }
 
+
+export type UsuarioSemSenha = Omit<Usuario, "senha">
+
 export default Usuario
