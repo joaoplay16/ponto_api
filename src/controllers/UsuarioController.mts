@@ -2,9 +2,10 @@ const Usuario = require("../models/Usuario")
 import { type Request, type Response } from "express"
 import type Usuario from "../types/usuario"
 import bcrypt from "bcrypt"
-import { isEmail } from "../util/email"
+import { generatePasswordRedefinitionTemplate, isEmail } from "../util/email"
 import sendMail, { EmailFields } from "../service/emailService"
 import { generateUserRegisterTemplate } from "../util/email"
+import jwt, { Secret, VerifyErrors, JwtPayload } from "jsonwebtoken"
 import dotenv from "dotenv"
 dotenv.config()
 
@@ -151,6 +152,121 @@ const UsuarioController = {
     } catch (error: any) {
       console.error("Erro interno do servidor", error)
       
+      res.status(500).json({ error: "Erro interno do servidor", info: error })
+    }
+  },
+
+  async sendPasswordRecoveryEmail(req: Request, res: Response): Promise<void> {
+    try {
+      const { email } = req.query
+
+      if (!isEmail(email as string)) {
+        res.status(400).json({
+          error: "Informe um e-mail válido.",
+        })
+        return
+      }
+
+      const usuario: Usuario = await Usuario.findOne({
+        where: { email },
+      })
+
+      if (usuario == null) {
+        res.status(404).json({
+          error: "Este email não está cadastrado",
+        })
+        return
+      }
+
+      const jwtSecretKey = process.env.JWT_SECRET_KEY || ""
+      const token = jwt.sign({ email }, jwtSecretKey, { expiresIn: "20m" })
+
+      sendMail({
+        to: email,
+        subject: "EmPonto - Redefinição de senha",
+        html: generatePasswordRedefinitionTemplate(
+          usuario.nome,
+          `${process.env.PASSWORD_CHANGE_URL}?token=${token}`
+        ),
+      } as EmailFields)
+        .then(() => {
+          res.status(200).send()
+        })
+        .catch((e: any) => {
+          res
+            .status(500)
+            .json({ error: "Erro ao enviar e-mail para redefinição de senha" })
+        })
+    } catch (error: any) {
+      console.error("Erro interno do servidor", error)
+
+      res.status(500).json({ error: "Erro interno do servidor", info: error })
+    }
+  },
+  
+  async resetPassword(req: Request, res: Response): Promise<void> {
+    try {
+      const { token, senha } = req.body
+
+      const jwtSecretKey: Secret = process.env.JWT_SECRET_KEY || ""
+
+      jwt.verify(
+        token as string,
+        jwtSecretKey,
+        async (
+          err: VerifyErrors | null,
+          decoded: JwtPayload | string | undefined
+        ) => {
+          if (err) {
+            console.log("Erro de decodificação de token", err)
+            return res
+              .status(400)
+              .json({ error: "Token inválido ou expirado." })
+          }
+
+          if (decoded) {
+            const { email } = decoded as { email: string }
+
+            const count: number = await Usuario.count({
+              where: { email },
+            })
+
+            // Verifica se usuario existe
+            if (count == 0) {
+              res.status(404).json({
+                error: "Este email não está cadastrado",
+              })
+              return
+            }
+
+            var hashDaSenha = ""
+
+            if (senha) {
+              if (senha.length >= 8) {
+                hashDaSenha = bcrypt.hashSync(senha, 10)
+              } else {
+                res.status(400).json({
+                  error: "A senha deve ter 8 ou mais caracteres.",
+                })
+                return
+              }
+            }
+
+            //Se correu tudo bem recebemos [1]
+            const linhasAfetadas: [number] = await Usuario.update(
+              { senha: hashDaSenha },
+              {
+                where: { email },
+              }
+            )
+
+            return res.json(linhasAfetadas)
+          }
+        }
+      )
+    } catch (error: any) {
+      console.error("Erro interno do servidor", error)
+
       res.status(500).json({ error: "Erro interno do servidor", info: error })
     }
   },
