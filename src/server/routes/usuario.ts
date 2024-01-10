@@ -28,6 +28,13 @@ module.exports = function (router: Router) {
     isUserAuthorized,
     PontoController.index
   )
+
+  router.get(
+    "/usuario/:id_usuario/registrar_ponto",
+    isUserAuthorized,
+    PontoController.save
+  )
+
   router.get(
     "/usuario/:id_usuario/relatorio",
     isUserAuthorized,

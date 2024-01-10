@@ -1,7 +1,7 @@
 const Ponto = require("../models/Ponto")
 import { type Request, type Response } from "express"
 import type Ponto from "../types/ponto"
-import { Sequelize, Op } from "sequelize"
+import sequelize, { Sequelize, Op, DataTypes } from "sequelize"
 const PontoController = {
   async index(req: Request, res: Response): Promise<void> {
     try {
@@ -175,7 +175,66 @@ const PontoController = {
     }
   },
 
-  async save(req: Request, res: Response): Promise<void> {},
+  async save(req: Request, res: Response): Promise<void> {
+    try {
+      const { id_usuario } = req.params
+
+      // Verifica se existem pontos para o usuário informado 
+      const count = await Ponto.count({
+        where: {
+          usuario_id: id_usuario,
+        },
+      })
+
+      if(count == 0){
+        res.status(404).json({error: "Registros de ponto não encontrados"})
+        return
+      }
+
+      // Procura registros de ponto para o usuario atual que so possua a hora de entrada
+      const pontoExistente: Ponto = await Ponto.findOne({
+        where: {
+          usuario_id: id_usuario,
+          data: Sequelize.fn("DATE", Sequelize.fn("NOW")),
+          hora_saida: null,
+        },
+      })
+
+      if (pontoExistente) {
+        // Ponto do dia atual existe (hora de entrada), define a hora de saída no registro existente
+        await Ponto.update(
+          {
+            hora_saida: Sequelize.literal("time(now())"),
+          },
+          {
+            where: {
+              usuario_id: id_usuario,
+              data: Sequelize.literal("date(now())"),
+              hora_saida: null,
+            },
+          }
+        )
+
+        res.status(200).send()
+      } else {
+        // Ponto do dia atual não existe, cria um novo com a hora de entrada
+        await Ponto.create({
+          data: Sequelize.fn("DATE", Sequelize.fn("NOW")),
+          hora_entrada: Sequelize.fn("TIME", Sequelize.fn("NOW")),
+          usuario_id: id_usuario,
+        })
+
+        res.status(200).send()
+      }
+    } catch (error: any) {
+      console.log("Erro interno do servidor", error)
+      if (error?.original?.code == "ER_TRUNCATED_WRONG_VALUE") {
+        res.status(400).json({ error: "Erro, data inválida" })
+        return
+      }
+      res.status(500).json({ error: "Erro interno do servidor" })
+    }
+  },
 }
 
 export default PontoController
