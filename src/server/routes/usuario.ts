@@ -41,5 +41,11 @@ module.exports = function (router: Router) {
     PontoController.userReport
   )
 
+  router.get(
+    "/usuario/:id_usuario/relatorio_mensal",
+    isUserAuthorized,
+    PontoController.userMonthWorkingHoursReport
+  )
+
   return router
 }

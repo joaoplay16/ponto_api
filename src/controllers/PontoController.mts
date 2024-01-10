@@ -159,6 +159,67 @@ const PontoController = {
     }
   },
 
+  async userMonthWorkingHoursReport(req: Request, res: Response): Promise<void> {
+    try {
+
+      const { id_usuario } = req.params;
+
+      const { mes, ano } = req.query;
+  
+      const horasTrabalhadasMesAno = await Ponto.findAll({
+        where: {
+          
+          usuario_id: id_usuario,
+          
+          [Op.and]: [
+            mes &&
+              Sequelize.where(
+                Sequelize.fn("month", Sequelize.col("data")),
+                mes
+              ),
+            ano &&
+              Sequelize.where(Sequelize.fn("year", Sequelize.col("data")), ano),
+          ],
+        },
+        attributes: [
+          "usuario_id",
+          [Sequelize.fn(
+            "MONTH", Sequelize.col("data")), "mes"],
+          [
+            Sequelize.fn(
+              "SEC_TO_TIME",
+              Sequelize.fn(
+                "SUM",
+                Sequelize.fn(
+                  "ABS",
+                  Sequelize.fn(
+                    "TIME_TO_SEC",
+                    Sequelize.fn(
+                      "TIMEDIFF",
+                      Sequelize.col("hora_entrada"),
+                      Sequelize.col("hora_saida")
+                    )
+                  )
+                )
+              )
+            ),
+            "horas_trabalhadas",
+          ],
+        ],
+        group: ["usuario_id", "mes"],
+      });
+  
+      if (horasTrabalhadasMesAno != null) {
+        res.json(horasTrabalhadasMesAno[0]);
+      } else {
+        res.status(404).json({ error: "Horas trabalhadas do mês informado não encontradas" });
+      }
+    } catch (error) {
+      console.error("Erro ao buscar registros de horas trabalhadas do mês informado:", error);
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  },
+  
   async details(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params
