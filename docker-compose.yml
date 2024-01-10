@@ -1,11 +1,13 @@
 version: "3.2"
 services:
   ponto_api:
+    depends_on:
+        - mysql_db
     image: node:alpine
     container_name: ponto_api
     restart: always
     env_file: 
-      - .env
+      - .env.docker
     ports: 
       - 8088:8088
     volumes: 
@@ -16,4 +18,20 @@ services:
       driver: "json-file"
       options: 
         max-size: "10m"
-        max-file: "5"             
+        max-file: "5"
+  mysql_db:
+    image: mysql:latest
+    container_name: ponto_mysql
+    restart: always
+    env_file: 
+      - .env.docker
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE_NAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "${DB_PORT}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+volumes:
+  mysql_data:                   
