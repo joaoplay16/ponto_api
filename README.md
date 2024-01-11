@@ -58,6 +58,7 @@ OAUTH_CLIENT_SECRET=""
 OAUTH_REFRESH_TOKEN=""
 ```
 Instruções para obter credenciais OAUTH em https://bit.ly/3tQ7ei1
+
  4. Execute o comando `docker-compose up` para iniciar os containers
  5. Após iniciar os containers, em outro terminal execute o comando `docker-compose run ponto_api npx sequelize-cli db:migrate` para criar as tabelas no banco de dados. 
  6. Pronto! A api estará rodando em http://localhost:8088/
