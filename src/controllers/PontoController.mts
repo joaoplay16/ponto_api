@@ -240,18 +240,6 @@ const PontoController = {
     try {
       const { id_usuario } = req.params
 
-      // Verifica se existem pontos para o usuário informado 
-      const count = await Ponto.count({
-        where: {
-          usuario_id: id_usuario,
-        },
-      })
-
-      if(count == 0){
-        res.status(404).json({error: "Registros de ponto não encontrados"})
-        return
-      }
-
       // Procura registros de ponto para o usuario atual que so possua a hora de entrada
       const pontoExistente: Ponto = await Ponto.findOne({
         where: {
