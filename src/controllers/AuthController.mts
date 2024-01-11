@@ -35,6 +35,12 @@ const AuthController = {
         raw: true,
       })
 
+
+      if (!usuario.senha) {
+        res.status(403).json({ error: "Continue seu cadastro, um e-mail foi enviado com as instruções para continuar seu cadastro." })
+        return
+      }
+
       if (usuario.ativo === 0) {
         res.status(403).json({
           error:
