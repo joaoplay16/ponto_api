@@ -21,6 +21,7 @@ const AuthController = {
 
       if (!isEmail(email)) {
         res.status(400).json({ error: "E-mail inválido" })
+        return
       }
 
       if (senha.length < 8) {
@@ -35,9 +36,13 @@ const AuthController = {
         raw: true,
       })
 
+      if (!usuario) {
+        res.status(403).json({ error: "Este e-mail não está cadastrado." })
+        return
+      }
 
       if (!usuario.senha) {
-        res.status(403).json({ error: "Continue seu cadastro, um e-mail foi enviado com as instruções para continuar seu cadastro." })
+        res.status(403).json({ error: "Continue seu cadastro. Um e-mail foi enviado com as instruções para continuar seu cadastro." })
         return
       }
 
