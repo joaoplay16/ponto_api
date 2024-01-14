@@ -6,13 +6,15 @@ dotenv.config()
 const erroDeAutenticacao =
   "Este recurso está disponível apenas para usuários autenticados. Faça login para acessar."
 
+const erroDePermissão =
+  "Este recurso está disponível apenas para usuários com permissões elevadas."
+
 const isUserAuthorized = function (
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-
-  if(process.env.NODE_ENV == "development"){
+  if (process.env.NODE_ENV == "development") {
     return next()
   }
 
@@ -20,8 +22,7 @@ const isUserAuthorized = function (
     return next()
   }
 
-  var err = new Error(erroDeAutenticacao)
-  return next(err)
+  return res.status(403).json({ error: erroDeAutenticacao })
 }
 
 const isAdminAuthorized = function (
@@ -29,19 +30,21 @@ const isAdminAuthorized = function (
   res: Response,
   next: NextFunction
 ) {
-
-  if(process.env.NODE_ENV == "development"){
+  if (process.env.NODE_ENV == "development") {
     return next()
   }
 
   const usuarioDeSessao: UsuarioSemSenha | undefined = req.session.usuario
 
-  if (usuarioDeSessao && usuarioDeSessao.e_admin == 1) {
-    return next()
+  if (!usuarioDeSessao) {
+    return res.status(403).json({ error: erroDeAutenticacao })
   }
 
-  var err = new Error(erroDeAutenticacao)
-  return next(err)
+  if (usuarioDeSessao.e_admin == 0) {
+    return res.status(403).json({ error: erroDePermissão })
+  }
+
+  return next()
 }
 
 export { isUserAuthorized, isAdminAuthorized }
