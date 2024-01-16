@@ -3,7 +3,7 @@ services:
   ponto_api:
     depends_on:
         - mysql_db
-    image: node:alpine
+    image: node:slim
     container_name: ponto_api
     restart: always
     env_file: 
