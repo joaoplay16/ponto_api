@@ -19,6 +19,11 @@ module.exports = function (app: Application) {
       secret: "0gMDvqoFf1RWdrUH",
       resave: true,
       saveUninitialized: false,
+      cookie: {
+        maxAge: 3600000, // Tempo de vida do cookie em milissegundos (opcional, ajuste conforme necessário)
+        secure: false, // Se verdadeiro, o cookie só será enviado em conexões HTTPS
+        httpOnly: true, // Impede que o cookie seja acessado pelo JavaScript do lado do cliente
+      },
     })
   )
 
