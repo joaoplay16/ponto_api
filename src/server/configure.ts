@@ -8,7 +8,13 @@ var routes = require("./routes"),
   cors = require("cors")
 
 module.exports = function (app: Application) {
-  app.use(cors())
+  const corsOptions = {
+    // origin: "http://localhost:3000/",
+    origin: true, 
+    credentials: true,
+  }
+
+  app.use(cors(corsOptions))
   app.use(morgan("dev"))
   app.use(express.urlencoded({ extended: true }))
   app.use(express.json())
