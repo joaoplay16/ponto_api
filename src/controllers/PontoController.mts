@@ -18,7 +18,7 @@ const PontoController = {
           "hora_entrada",
           "hora_saida",
         ],
-        order: [["data", "DESC"]],
+        order: [["id", "DESC"],["data", "DESC"],["hora_entrada", "DESC"]],
         limit: parseInt(limit as string) || 20,
         offset: parseInt(offset as string) || 0,
       })
