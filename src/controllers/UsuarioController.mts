@@ -97,10 +97,10 @@ const UsuarioController = {
       if (error.original.code == "ER_DUP_ENTRY") {
         switch (error.errors[0].path) {
           case "nome_de_usuario":
-            res.status(500).json({ error: "Este nome usuário já foi cadastrado" })
+            res.status(409).json({ error: "Este nome usuário já foi cadastrado" })
             break
           case "email":
-            res.status(500).json({ error: "O endereço de e-mail já foi cadastrado" })
+            res.status(409).json({ error: "O endereço de e-mail já foi cadastrado" })
             break
         }
        return
