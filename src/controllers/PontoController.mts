@@ -39,7 +39,7 @@ const PontoController = {
       const { id_usuario } = req.params
       const { limit, offset, mes, ano } = req.query
 
-      const pontosPaginados = await Ponto.findAll({
+      const pontosPaginados = await Ponto.findAndCountAll({
         where: {
           usuario_id: id_usuario,
           [Op.and]: [
@@ -83,7 +83,10 @@ const PontoController = {
       })
 
       if (pontosPaginados != null) {
-        res.json({ count: pontosPaginados.length, rows: pontosPaginados })
+        res.json({
+          count: pontosPaginados.count.length, //count é um []
+          rows: pontosPaginados.rows,
+        })
       } else {
         res.status(404).json({ error: "Nenhum registro de ponto encontrado" })
       }
@@ -97,7 +100,7 @@ const PontoController = {
     try {
       const { limit, offset, mes, ano, cargo } = req.query
 
-      const pontosPaginados = await Ponto.findAll({
+      const pontosPaginados = await Ponto.findAndCountAll({
         where: {
           [Op.and]: [
             mes &&
@@ -114,8 +117,8 @@ const PontoController = {
             association: "usuario",
             attributes: { exclude: ["senha"] },
             where: {
-              ...(cargo && {cargo})
-            }
+              ...(cargo && { cargo }),
+            },
           },
         ],
         attributes: [
@@ -149,7 +152,10 @@ const PontoController = {
       })
 
       if (pontosPaginados != null) {
-        res.json({ count: pontosPaginados.length, rows: pontosPaginados })
+        res.json({
+          count: pontosPaginados.count.length, //count é um []
+          rows: pontosPaginados.rows,
+        })
       } else {
         res.status(404).json({ error: "Nenhum registro de ponto encontrado" })
       }
@@ -161,16 +167,14 @@ const PontoController = {
 
   async userMonthWorkingHoursReport(req: Request, res: Response): Promise<void> {
     try {
+      const { id_usuario } = req.params
 
-      const { id_usuario } = req.params;
+      const { mes, ano } = req.query
 
-      const { mes, ano } = req.query;
-  
       const horasTrabalhadasMesAno = await Ponto.findAll({
         where: {
-          
           usuario_id: id_usuario,
-          
+
           [Op.and]: [
             mes &&
               Sequelize.where(
@@ -183,8 +187,7 @@ const PontoController = {
         },
         attributes: [
           "usuario_id",
-          [Sequelize.fn(
-            "MONTH", Sequelize.col("data")), "mes"],
+          [Sequelize.fn("MONTH", Sequelize.col("data")), "mes"],
           [
             Sequelize.fn(
               "SEC_TO_TIME",
@@ -207,16 +210,21 @@ const PontoController = {
           ],
         ],
         group: ["usuario_id", "mes"],
-      });
-  
+      })
+
       if (horasTrabalhadasMesAno != null) {
-        res.json(horasTrabalhadasMesAno[0]);
+        res.json(horasTrabalhadasMesAno[0])
       } else {
-        res.status(404).json({ error: "Horas trabalhadas do mês informado não encontradas" });
+        res
+          .status(404)
+          .json({ error: "Horas trabalhadas do mês informado não encontradas" })
       }
     } catch (error) {
-      console.error("Erro ao buscar registros de horas trabalhadas do mês informado:", error);
-      res.status(500).json({ error: "Erro interno do servidor" });
+      console.error(
+        "Erro ao buscar registros de horas trabalhadas do mês informado:",
+        error
+      )
+      res.status(500).json({ error: "Erro interno do servidor" })
     }
   },
   
