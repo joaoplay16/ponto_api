@@ -32,6 +32,8 @@
 
 EmPonto é uma solução eficiente e fácil de usar para o gerenciamento preciso do registro de ponto dos colaboradores. Projetado para simplificar a administração de horas trabalhadas, presença e controle de jornada, nosso sistema oferece uma abordagem moderna e amigável.
 
+**Demo** https://emponto.fly.dev
+
 ## Tecnologias utilizadas
 - [NodeJS](https://nodejs.org/pt-br/)
 - [MySQL](https://www.mysql.com/)
