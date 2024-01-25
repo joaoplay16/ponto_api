@@ -1,5 +1,5 @@
 const Sequelize = require("sequelize")
-const dbConfig = require("../config/database")
+import dbConfig from  "../config/database"
 
 const Usuario = require("../models/Usuario")
 const Ponto = require("../models/Ponto")

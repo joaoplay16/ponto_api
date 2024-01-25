@@ -3,7 +3,7 @@ import { UsuarioController } from "../../controllers/index.mjs"
 import { PontoController } from "../../controllers/index.mjs"
 import { isAdminAuthorized } from "../authMiddleware"
 
-module.exports = function (router: Router) {
+function adminRouter(router: Router) {
   router.get("/admin/usuarios", isAdminAuthorized, UsuarioController.index)
   router.get(
     "/admin/ponto/relatorio",
@@ -13,3 +13,5 @@ module.exports = function (router: Router) {
 
   return router
 }
+
+export default adminRouter

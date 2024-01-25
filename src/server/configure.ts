@@ -1,16 +1,16 @@
 import { type Application } from "express"
+import express from "express"
+import morgan from "morgan"
+import errorHandler from "errorhandler"
+import session from "express-session"
+import cors from "cors"
 
-var routes = require("./routes"),
-  express = require("express"),
-  morgan = require("morgan"),
-  errorHandler = require("errorhandler"),
-  session = require("express-session"),
-  cors = require("cors")
+import routes from "./routes"
 
-module.exports = function (app: Application) {
+function configuration(app: Application) {
   const corsOptions = {
     // origin: "http://localhost:3000/",
-    origin: true, 
+    origin: true,
     credentials: true,
   }
 
@@ -41,3 +41,5 @@ module.exports = function (app: Application) {
 
   return app
 }
+
+export default configuration

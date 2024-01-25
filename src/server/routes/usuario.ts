@@ -3,7 +3,7 @@ import { UsuarioController } from "../../controllers/index.mjs"
 import { PontoController } from "../../controllers/index.mjs"
 import { isUserAuthorized } from "../authMiddleware"
 
-module.exports = function (router: Router) {
+function userRouter(router: Router) {
   router.post("/usuario/registro", UsuarioController.register)
   // Envia email para redefinicao de senha
   router.get(
@@ -49,3 +49,5 @@ module.exports = function (router: Router) {
 
   return router
 }
+
+export default userRouter
