@@ -1,27 +1,35 @@
-import { type ModelAttributes, type Sequelize } from "sequelize"
-
-const { Model } = require("sequelize")
+import {
+  Column,
+  Model,
+  Table,
+  BelongsTo,
+  ForeignKey
+} from "sequelize-typescript"
 
 import { DataTypes } from "sequelize"
+import UsuarioModel from "./Usuario"
 
-class Ponto extends Model {
-  static init(sequelize: Sequelize) {
-    super.init(
-      {
-        data: DataTypes.DATEONLY,
-        hora_entrada: DataTypes.TIME,
-        hora_saida: DataTypes.TIME,
-      },
-      {
-        sequelize,
-        timestamps: false
-      }
-    )
-  }
+@Table({ tableName: "pontos", timestamps: false })
+class PontoModel extends Model {
+   @Column({ type: DataTypes.STRING })({
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  })
+  declare id: number
+  @Column({ type: DataTypes.STRING })
+  declare data: string
+  @Column({ type: DataTypes.STRING })
+  declare hora_entrada: string
+  @Column({ type: DataTypes.STRING })
+  declare hora_saida: string
 
-  static associate(models: ModelAttributes) {
-    this.belongsTo(models.Usuario, { foreignKey: "usuario_id", as: "usuario" })
-  }
+  @ForeignKey(() => UsuarioModel)
+  @Column({ type: DataTypes.INTEGER })
+  declare usuario_id: number
+
+  @BelongsTo(() => UsuarioModel)
+  declare usuario: UsuarioModel
 }
 
-module.exports = Ponto
+export default PontoModel

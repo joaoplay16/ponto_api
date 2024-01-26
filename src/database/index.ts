@@ -1,24 +1,19 @@
-const Sequelize = require("sequelize")
-import dbConfig from  "../config/database"
+import { Sequelize } from "sequelize-typescript"
+import dbConfig from "../config/database"
+import "dotenv/config"
 
-const Usuario = require("../models/Usuario")
-const Ponto = require("../models/Ponto")
-
+import PontoModel from "../models/Ponto"
+import UsuarioModel from "../models/Usuario"
 const connection = new Sequelize(dbConfig)
 
 connection
   .authenticate()
   .then(() => {
+    connection.addModels([UsuarioModel, PontoModel])
     console.log("Conexão com o banco de dados bem-sucedida.")
   })
   .catch((err: Error) => {
     console.error("Erro ao conectar ao banco de dados:", err)
   })
 
-Usuario.init(connection)
-Ponto.init(connection)
-
-Usuario.associate(connection.models)
-Ponto.associate(connection.models)
-
-module.exports = connection
+export default connection

@@ -1,14 +1,16 @@
-const Ponto = require("../models/Ponto")
 import { type Request, type Response } from "express"
-import type Ponto from "../types/ponto"
-import sequelize, { Sequelize, Op, DataTypes } from "sequelize"
+import { Op, Sequelize } from "sequelize"
+const operatorsAliases = {
+  $and: Op.and,
+}
+import PontoModel from "../models/Ponto"
 const PontoController = {
   async index(req: Request, res: Response): Promise<void> {
     try {
       const { id_usuario } = req.params
       const { limit, offset } = req.query
 
-      const pontosPaginados = await Ponto.findAndCountAll({
+      const pontosPaginados = await PontoModel.findAndCountAll({
         where: {
           usuario_id: id_usuario,
         },
@@ -18,7 +20,11 @@ const PontoController = {
           "hora_entrada",
           "hora_saida",
         ],
-        order: [["id", "DESC"],["data", "DESC"],["hora_entrada", "DESC"]],
+        order: [
+          ["id", "DESC"],
+          ["data", "DESC"],
+          ["hora_entrada", "DESC"],
+        ],
         limit: parseInt(limit as string) || 20,
         offset: parseInt(offset as string) || 0,
       })
@@ -39,10 +45,10 @@ const PontoController = {
       const { id_usuario } = req.params
       const { limit, offset, mes, ano } = req.query
 
-      const pontosPaginados = await Ponto.findAndCountAll({
+      const pontosPaginados = await PontoModel.findAndCountAll({
         where: {
           usuario_id: id_usuario,
-          [Op.and]: [
+          [operatorsAliases.$and]: [
             mes &&
               Sequelize.where(
                 Sequelize.fn("month", Sequelize.col("data")),
@@ -84,7 +90,7 @@ const PontoController = {
 
       if (pontosPaginados != null) {
         res.json({
-          count: pontosPaginados.count.length, //count é um []
+          count: pontosPaginados.rows.length,
           rows: pontosPaginados.rows,
         })
       } else {
@@ -100,9 +106,9 @@ const PontoController = {
     try {
       const { limit, offset, mes, ano, cargo } = req.query
 
-      const pontosPaginados = await Ponto.findAndCountAll({
+      const pontosPaginados = await PontoModel.findAndCountAll({
         where: {
-          [Op.and]: [
+          [operatorsAliases.$and]: [
             mes &&
               Sequelize.where(
                 Sequelize.fn("month", Sequelize.col("data")),
@@ -153,7 +159,7 @@ const PontoController = {
 
       if (pontosPaginados != null) {
         res.json({
-          count: pontosPaginados.count.length, //count é um []
+          count: pontosPaginados.rows.length,
           rows: pontosPaginados.rows,
         })
       } else {
@@ -165,17 +171,20 @@ const PontoController = {
     }
   },
 
-  async userMonthWorkingHoursReport(req: Request, res: Response): Promise<void> {
+  async userMonthWorkingHoursReport(
+    req: Request,
+    res: Response
+  ): Promise<void> {
     try {
       const { id_usuario } = req.params
 
       const { mes, ano } = req.query
 
-      const horasTrabalhadasMesAno = await Ponto.findAll({
+      const horasTrabalhadasMesAno: unknown[] = await PontoModel.findAll({
         where: {
           usuario_id: id_usuario,
 
-          [Op.and]: [
+          [operatorsAliases.$and]: [
             mes &&
               Sequelize.where(
                 Sequelize.fn("month", Sequelize.col("data")),
@@ -227,12 +236,12 @@ const PontoController = {
       res.status(500).json({ error: "Erro interno do servidor" })
     }
   },
-  
+
   async details(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params
 
-      const ponto: Ponto = await Ponto.findByPk(id)
+      const ponto = await PontoModel.findByPk(id)
       if (ponto != null) {
         res.json(ponto)
       } else {
@@ -249,7 +258,7 @@ const PontoController = {
       const { id_usuario } = req.params
 
       // Procura registros de ponto para o usuario atual que so possua a hora de entrada
-      const pontoExistente: Ponto = await Ponto.findOne({
+      const pontoExistente: PontoModel | null = await PontoModel.findOne({
         where: {
           usuario_id: id_usuario,
           data: Sequelize.fn("DATE", Sequelize.fn("NOW")),
@@ -259,7 +268,7 @@ const PontoController = {
 
       if (pontoExistente) {
         // Ponto do dia atual existe (hora de entrada), define a hora de saída no registro existente
-        await Ponto.update(
+        await PontoModel.update(
           {
             hora_saida: Sequelize.literal("time(now())"),
           },
@@ -275,7 +284,7 @@ const PontoController = {
         res.status(200).send()
       } else {
         // Ponto do dia atual não existe, cria um novo com a hora de entrada
-        await Ponto.create({
+        await PontoModel.create({
           data: Sequelize.fn("DATE", Sequelize.fn("NOW")),
           hora_entrada: Sequelize.fn("TIME", Sequelize.fn("NOW")),
           usuario_id: id_usuario,

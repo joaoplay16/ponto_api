@@ -1,30 +1,36 @@
-import { type ModelAttributes, type Sequelize } from "sequelize"
+import { DataTypes } from "sequelize"
+import { Column, HasMany, Model, Table } from "sequelize-typescript"
+import PontoModel from "./Ponto"
 
-const { Model } = require('sequelize');
+@Table({ tableName: "usuarios", timestamps: false })
+class UsuarioModel extends Model {
+  @Column({
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  })
+  declare id: number
+  @Column({ type: DataTypes.STRING })
+  declare nome: string
+  @Column({ type: DataTypes.STRING })
+  declare cargo: string
+  @Column({ type: DataTypes.STRING })
+  declare nome_de_usuario: string
+  @Column({ type: DataTypes.STRING })
+  declare email: string
+  @Column({ type: DataTypes.STRING })
+  declare senha: string
+  @Column({ type: DataTypes.STRING })
+  declare celular: string
+  @Column({ type: DataTypes.STRING })
+  declare criado_em: string
+  @Column({ type: DataTypes.INTEGER })
+  declare e_admin: number
+  @Column({ type: DataTypes.INTEGER })
+  declare ativo: number
 
-import { DataTypes } from "sequelize";
-
-class Usuario extends Model {
-  static init(sequelize: Sequelize) {
-    super.init({
-      nome: DataTypes.STRING,
-      cargo: DataTypes.STRING,
-      nome_de_usuario: DataTypes.STRING,
-      email: DataTypes.STRING,
-      senha: DataTypes.STRING,
-      celular: DataTypes.STRING,
-      criado_em: DataTypes.STRING,
-      e_admin: DataTypes.INTEGER,
-      ativo: DataTypes.INTEGER,
-    }, {
-      sequelize,
-      timestamps: false
-    })
-  }
-
-  static associate(models: ModelAttributes) {
-    this.hasMany(models.Ponto, { foreignKey: "usuario_id", as: "pontos" })
-  }
+  @HasMany(() => PontoModel)
+  declare pontos: PontoModel[]
 }
 
-module.exports = Usuario;
+export default UsuarioModel

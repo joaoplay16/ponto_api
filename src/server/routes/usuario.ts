@@ -1,6 +1,6 @@
 import { type Router, type Request, type Response } from "express"
-import { UsuarioController } from "../../controllers/index.mjs"
-import { PontoController } from "../../controllers/index.mjs"
+import { UsuarioController } from "../../controllers/index.js"
+import { PontoController } from "../../controllers/index.js"
 import { isUserAuthorized } from "../authMiddleware"
 
 function userRouter(router: Router) {

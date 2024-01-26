@@ -1,21 +1,19 @@
-const Usuario = require("../models/Usuario")
-import { type Request, type Response } from "express"
-import type Usuario from "../types/usuario"
 import bcrypt from "bcrypt"
-import { generatePasswordRedefinitionTemplate, isEmail } from "../util/email"
+import "dotenv/config"
+import { type Request, type Response } from "express"
+import jwt, { JwtPayload, Secret, VerifyErrors } from "jsonwebtoken"
+import UsuarioModel from "../models/Usuario"
+import UsuarioType from "../types/usuario"
 import sendMail, { EmailFields } from "../service/emailService"
-import { generateUserRegisterTemplate } from "../util/email"
-import jwt, { Secret, VerifyErrors, JwtPayload } from "jsonwebtoken"
-import dotenv from "dotenv"
-dotenv.config()
+import { generatePasswordRedefinitionTemplate, generateUserRegisterTemplate, isEmail } from "../util/email"
 
 const UsuarioController = {
   async index(req: Request, res: Response): Promise<void> {
     try {
       const { limit, offset, cargo} = req.query
 
-      const usuarios: Usuario[] = await Usuario.findAndCountAll({
-        where: {...(cargo && {cargo})},
+      const usuarios = await UsuarioModel.findAndCountAll({
+        where: {cargo: cargo as string},
         limit: parseInt(limit as string) || 20,
         offset: parseInt(offset as string) || 0,
         order: [["nome", "ASC"]],
@@ -35,9 +33,9 @@ const UsuarioController = {
     try {
       const { id } = req.params
 
-      var result = await Usuario.findByPk(id)
+      var result = await UsuarioModel.findByPk(id)
       if (result != null) {
-        const { senha, ...usuarioSemASenha }: Usuario = result.dataValues;
+        const { senha, ...usuarioSemASenha }: UsuarioModel = result.dataValues;
 
         res.json(usuarioSemASenha)
       } else {
@@ -51,9 +49,9 @@ const UsuarioController = {
 
   async save(req: Request, res: Response): Promise<void> {
     try {
-      const usuario: Usuario = req.body
+      const usuarioInfo: UsuarioModel = req.body
 
-      const { nome, email, nome_de_usuario, celular } = usuario
+      const { nome, email, nome_de_usuario, celular } = usuarioInfo
 
       if (
         ![nome, email, nome_de_usuario, celular].every(
@@ -73,9 +71,9 @@ const UsuarioController = {
         return
       }
 
-      const { senha, ...usuarioSemASenha }: Usuario = usuario
+      const novoUsuario: UsuarioType = usuarioInfo
       
-      const usuarioCriado = await Usuario.create(usuarioSemASenha)
+      const usuarioCriado = await UsuarioModel.create(novoUsuario)
 
       if (usuarioCriado != null) {
         res.json(usuarioCriado)
@@ -116,7 +114,7 @@ const UsuarioController = {
 
       const { usuario: usuarioParam, senha } = req.body
       
-      const usuario: Usuario = await Usuario.findOne({
+      const usuario = await UsuarioModel.findOne({
         where: {nome_de_usuario: usuarioParam}
       })
 
@@ -140,10 +138,10 @@ const UsuarioController = {
           }
       }
 
-      const resultado = await Usuario.update(
+      const resultado = await UsuarioModel.update(
         {senha: hashDaSenha},
         {
-          where: { id: usuario.id },
+          where: { id: usuario?.id },
         }
       )
 
@@ -167,8 +165,8 @@ const UsuarioController = {
         return
       }
 
-      const usuario: Usuario = await Usuario.findOne({
-        where: { email },
+      const usuario = await UsuarioModel.findOne({
+        where: { email: email as string },
       })
 
       if (usuario == null) {
@@ -227,7 +225,7 @@ const UsuarioController = {
           if (decoded) {
             const { email } = decoded as { email: string }
 
-            const count: number = await Usuario.count({
+            const count: number = await UsuarioModel.count({
               where: { email },
             })
 
@@ -253,7 +251,7 @@ const UsuarioController = {
             }
 
             //Se correu tudo bem recebemos [1]
-            const linhasAfetadas: [number] = await Usuario.update(
+            const linhasAfetadas: [number] = await UsuarioModel.update(
               { senha: hashDaSenha },
               {
                 where: { email },
@@ -274,7 +272,7 @@ const UsuarioController = {
   async update(req: Request, res: Response): Promise<void> {
     try {
       const { id_usuario } = req.params
-      const usuario: Usuario = req.body
+      const usuario: UsuarioModel = req.body
 
       const { nome, email, cargo, nome_de_usuario, celular, senha } =
         usuario
@@ -308,7 +306,7 @@ const UsuarioController = {
         ...(hashDaSenha && { senha: hashDaSenha }),
       }
 
-      const resultado = await Usuario.update(
+      const resultado = await UsuarioModel.update(
         usuarioAtualizado,
         {
           where: { id: id_usuario },

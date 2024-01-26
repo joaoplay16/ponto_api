@@ -1,6 +1,5 @@
-const Usuario = require("../models/Usuario")
+import UsuarioModel from "../models/Usuario"
 import { type Request, type Response } from "express"
-import type Usuario from "../types/usuario"
 import { isEmail } from "../util/email"
 import bcrypt from "bcrypt"
 import dotenv from "dotenv"
@@ -31,7 +30,7 @@ const AuthController = {
         return
       }
 
-      const usuario: Usuario = await Usuario.findOne({
+      const usuario = await UsuarioModel.findOne({
         where: { email: email },
         raw: true,
       })
@@ -64,7 +63,7 @@ const AuthController = {
         return
       }
 
-      const { senha: _, ...usuarioSemASenha }: Usuario = usuario
+      const { senha: _, ...usuarioSemASenha }: UsuarioModel = usuario
 
       req.session.usuario = usuarioSemASenha as UsuarioSemSenha
       res.json(usuarioSemASenha)

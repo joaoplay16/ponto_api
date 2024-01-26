@@ -1,5 +1,5 @@
 import { type Router, type Request, type Response } from "express"
-import AuthController from "../../controllers/AuthController.mjs"
+import AuthController from "../../controllers/AuthController.js"
 
 function authRouter(router: Router) {
   router.post("/login", AuthController.login)

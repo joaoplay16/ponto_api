@@ -4,3 +4,4 @@
 *lock.json
 .vscode/settings.json
 .env
+.env.docker
