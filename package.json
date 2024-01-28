@@ -7,7 +7,9 @@
   "scripts": {
     "start": "tsx src/index.ts",
     "build": "tsc",
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "test": "mocha --require ts-node/register --loader=tsx -r src/tests/testhelper.mts -R spec src/tests/**/*.test.ts",
+    "test:watch": "mocha --watch --loader=tsx -r src/tests/testhelper.ts -R spec src/tests/**/*.test.ts"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
