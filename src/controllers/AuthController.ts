@@ -1,73 +1,22 @@
-import UsuarioModel from "../models/Usuario"
 import { type Request, type Response } from "express"
-import { isEmail } from "../util/email"
-import bcrypt from "bcrypt"
-import dotenv from "dotenv"
-import { UsuarioSemSenha } from "../types/usuario"
-dotenv.config()
+import AuthError from "../errors/AuthError"
+import DefaultUserRepository from "../repository/DefaultAuthRepository"
+import AuthUseCase from "../usecases/AuthUseCase"
 
 const AuthController = {
-  async login(req: Request, res: Response): Promise<void> {
+  async login(req: Request, res: Response) {
     try {
       const { email, senha } = req.body
 
-      if (![email, senha].every((campo) => campo && campo.length > 0)) {
-        res.status(400).json({
-          error: "Requisição inválida. Verifique os parâmetros fornecidos.",
-        })
-        return
-      }
+      const authUseCase = new AuthUseCase(new DefaultUserRepository())
 
-      if (!isEmail(email)) {
-        res.status(400).json({ error: "E-mail inválido" })
-        return
-      }
+      const usuario = await authUseCase.authenticate(email, senha)
 
-      if (senha.length < 8) {
-        res.status(400).json({
-          error: "Senha inválida",
-        })
-        return
-      }
-
-      const usuario = await UsuarioModel.findOne({
-        where: { email: email },
-        raw: true,
-      })
-
-      if (!usuario) {
-        res.status(403).json({ error: "Este e-mail não está cadastrado." })
-        return
-      }
-
-      if (!usuario.senha) {
-        res.status(403).json({ error: "Continue seu cadastro. Um e-mail foi enviado com as instruções para continuar seu cadastro." })
-        return
-      }
-
-      if (usuario.ativo === 0) {
-        res.status(403).json({
-          error:
-            "Sua conta está desativada/bloqueada. Entre em contato com o suporte para obter assistência.",
-        })
-        return
-      }
-
-      const autenticado = bcrypt.compareSync(senha, usuario.senha)
-
-      if (!autenticado) {
-        res.status(403).json({
-          error:
-            "Credenciais de login inválidas. Por favor, verifique seu email e senha e tente novamente.",
-        })
-        return
-      }
-
-      const { senha: _, ...usuarioSemASenha }: UsuarioModel = usuario
-
-      req.session.usuario = usuarioSemASenha as UsuarioSemSenha
-      res.json(usuarioSemASenha)
+      res.json(usuario)
     } catch (error) {
+      if (error instanceof AuthError) {
+        return res.status(error.statusCode).json(error)
+      }
       console.error("Erro interno do servidor", error)
       res.status(500).json({ error: "Erro interno do servidor" })
     }
