@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "tsx src/index.ts",
-    "build": "tsc",
+    "build": "tsc && tsc-alias",
     "dev": "tsx watch src/index.ts",
     "test": "mocha --require ts-node/register --loader=tsx -r src/tests/testhelper.ts -R spec src/tests/**/*.test.ts",
     "test:watch": "mocha --watch --loader=tsx -r src/tests/testhelper.ts -R spec src/tests/**/*.test.ts"
@@ -51,6 +51,7 @@
     "sinon-chai": "^3.7.0",
     "supertest": "^6.3.4",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.8",
     "tsx": "^3.14.0",
     "typescript": "^5.2.2"
   }
