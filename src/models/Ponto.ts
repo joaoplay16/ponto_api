@@ -29,7 +29,7 @@ class PontoModel extends Model {
   declare usuario_id: number
 
   @BelongsTo(() => UsuarioModel)
-  declare usuario: UsuarioModel
+  declare usuario: ReturnType<() => UsuarioModel>
 }
 
 export default PontoModel
