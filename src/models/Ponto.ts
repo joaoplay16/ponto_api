@@ -11,7 +11,7 @@ import UsuarioModel from "./Usuario"
 
 @Table({ tableName: "pontos", timestamps: false })
 class PontoModel extends Model {
-   @Column({ type: DataTypes.STRING })({
+   @Column({
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
