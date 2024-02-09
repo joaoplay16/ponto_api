@@ -1,14 +1,15 @@
-import bcrypt from "bcrypt"
 import AuthError from "../errors/AuthError"
 import UserRepository from "../repository/UserRepository"
+import HashService from "../service/HashService"
 import { UsuarioSemSenha } from "../types/usuario"
 import { isEmail } from "../util/email"
 
 class AuthUseCase {
   private userRepository: UserRepository
-
-  constructor(userRepository: UserRepository) {
+  private hashService: HashService
+  constructor(userRepository: UserRepository, hashService: HashService) {
     this.userRepository = userRepository
+    this.hashService = hashService
   }
 
   authenticate = async (
@@ -58,7 +59,7 @@ class AuthUseCase {
       )
     }
 
-    const autenticado = bcrypt.compareSync(senha, usuario.senha)
+    const autenticado = this.hashService.compareSync(senha, usuario.senha)
 
     if (!autenticado) {
       return Promise.reject(
