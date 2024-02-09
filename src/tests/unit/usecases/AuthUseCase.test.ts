@@ -157,4 +157,28 @@ describe("Test auth use case", () => {
       )
     )
   })
+
+  it("Should return the authenticated user", async () => {
+    const testUser: Usuario = {
+      id: 1,
+      nome: "Test User",
+      cargo: "colaborador",
+      nome_de_usuario: "testuser",
+      email: "testemail@example.com",
+      senha: "123456789", 
+      celular: "99982287525",
+      criado_em: "2024-01-01",
+      e_admin: 0,
+      ativo: 1,
+      pontos: [],
+    }
+
+    fakeUserRepositoryStub.findUserByEmail.returns(
+      sinon.promise<Usuario>().resolve(testUser)
+    )
+
+    expect(
+     await authUseCase?.authenticate(testUser.email, "123456789")
+    ).to.eventually.be.fulfilled.and.deep.equal(testUser)
+  })
 })
