@@ -8,7 +8,7 @@
     "start": "tsx src/index.ts",
     "build": "tsc && tsc-alias",
     "dev": "tsx watch src/index.ts",
-    "test": "mocha --require ts-node/register --loader=tsx -r src/tests/testhelper.ts -R spec src/tests/**/*.test.ts",
+    "test": "c8 mocha --require ts-node/register --loader=tsx -r src/tests/testhelper.ts -R spec src/tests/**/*.test.ts",
     "test:watch": "mocha --watch --loader=tsx -r src/tests/testhelper.ts -R spec src/tests/**/*.test.ts"
   },
   "dependencies": {
@@ -43,9 +43,11 @@
     "@types/sinon-chai": "^3.2.11",
     "@types/supertest": "^6.0.2",
     "@types/validator": "^13.11.8",
+    "c8": "^9.1.0",
     "chai": "^4.3.10",
     "chai-as-promised": "^7.1.1",
     "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
     "sequelize-cli": "6.2.0",
     "sinon": "^16.1.1",
     "sinon-chai": "^3.7.0",
