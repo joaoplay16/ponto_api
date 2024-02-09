@@ -3,7 +3,7 @@ import HashService from "../../../service/HashService"
 import Usuario from "../../../types/usuario"
 import AuthUseCase from "../../../usecases/AuthUseCase"
 import FakeHashService from "../service/FakeHashService"
-import FakeUserRepository from "./FakeAuthRepository"
+import FakeUserRepository from "./FakeUserRepository"
 
 import sinon from "sinon"
 
