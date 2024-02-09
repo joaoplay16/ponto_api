@@ -1,17 +1,21 @@
 import AuthError from "../../../errors/AuthError"
+import HashService from "../../../service/HashService"
 import Usuario from "../../../types/usuario"
 import AuthUseCase from "../../../usecases/AuthUseCase"
+import FakeHashService from "../service/FakeHashService"
 import FakeUserRepository from "./FakeAuthRepository"
 
 import sinon from "sinon"
 
 describe("Test auth use case", () => {
   let fakeUserRepositoryStub: sinon.SinonStubbedInstance<FakeUserRepository>
+  let hashService: HashService
   let authUseCase: AuthUseCase | null
 
   beforeEach(() => {
     fakeUserRepositoryStub = sinon.createStubInstance(FakeUserRepository)
-    authUseCase = new AuthUseCase(fakeUserRepositoryStub)
+    hashService = new FakeHashService()
+    authUseCase = new AuthUseCase(fakeUserRepositoryStub, hashService)
   })
 
   afterEach(() => {
@@ -121,6 +125,35 @@ describe("Test auth use case", () => {
       new AuthError(
         403,
         "Sua conta está desativada/bloqueada. Entre em contato com o suporte para obter assistência."
+      )
+    )
+  })
+
+  it("Should throw error 403 when receive invalid credentials", async () => {
+    const testUser: Usuario = {
+      id: 1,
+      nome: "Test User",
+      cargo: "colaborador",
+      nome_de_usuario: "testuser",
+      email: "testemail@example.com",
+      senha: "123456789", // Empty password means incomplete registration
+      celular: "99982287525",
+      criado_em: "2024-01-01",
+      e_admin: 0,
+      ativo: 1,
+      pontos: [],
+    }
+
+    fakeUserRepositoryStub.findUserByEmail.returns(
+      sinon.promise<Usuario>().resolve(testUser)
+    )
+
+    await expect(
+      authUseCase?.authenticate(testUser.email, "123456780")
+    ).to.eventually.be.rejected.and.deep.equal(
+      new AuthError(
+        403,
+        "Credenciais de login inválidas. Por favor, verifique seu email e senha e tente novamente."
       )
     )
   })
