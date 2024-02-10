@@ -178,7 +178,7 @@ describe("Test auth use case", () => {
     )
 
     expect(
-     await authUseCase?.authenticate(testUser.email, "123456789")
+     authUseCase?.authenticate(testUser.email, "123456789")
     ).to.eventually.be.fulfilled.and.deep.equal(testUser)
   })
 })
