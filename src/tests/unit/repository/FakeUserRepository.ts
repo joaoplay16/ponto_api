@@ -28,13 +28,10 @@ class FakeUserRepository implements UserRepository {
       filteredUsers = filteredUsers.slice(startIndex, endIndex)
     }
 
-    this.users.rows = filteredUsers
-    this.users.count = filteredUsers.length
-
-    return Promise.resolve(this.users)
+    return Promise.resolve({ rows: filteredUsers, count: filteredUsers.length })
   }
   async findUserByEmail(email: string): Promise<Usuario | null> {
-    const user =  this.users.rows.find((user) => user.email == email)
+    const user = this.users.rows.find((user) => user.email == email)
     return Promise.resolve(user ?? null)
   }
 }
