@@ -34,19 +34,8 @@ class FakeUserRepository implements UserRepository {
     return Promise.resolve(this.users)
   }
   async findUserByEmail(email: string): Promise<Usuario | null> {
-    return {
-      id: 1,
-      nome: "Test User",
-      cargo: "colaborador",
-      nome_de_usuario: "testuser",
-      email: "testuse@gmail.com",
-      senha: "123456789",
-      celular: "99982287525",
-      criado_em: "2024-01-01",
-      e_admin: 0,
-      ativo: 1,
-      pontos: [],
-    }
+    const user =  this.users.rows.find((user) => user.email == email)
+    return Promise.resolve(user ?? null)
   }
 }
 
