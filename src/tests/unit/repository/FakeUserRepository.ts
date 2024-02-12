@@ -4,6 +4,13 @@ import UserRepository from "../../../repository/UserRepository"
 class FakeUserRepository implements UserRepository {
   users: UsersQueryResult = { rows: [], count: 0 }
 
+  constructor(users?: Usuario[]) {
+    if (users) {
+      this.users.rows = users
+      this.users.count = users.length
+    }
+  }
+
   getUsers(
     cargo: string,
     limit: number,
