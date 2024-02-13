@@ -16,4 +16,6 @@ type Usuario = {
 
 export type UsuarioSemSenha = Omit<Usuario, "senha">
 
+export type UsersQueryResult = { rows: Usuario[]; count: number }
+
 export default Usuario

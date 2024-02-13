@@ -68,7 +68,7 @@ export function generateUserRegisterTemplate(
 
 export function generatePasswordRedefinitionTemplate(
   nome: string,
-  registrationLink: string
+  passwordRedefinitionLink: string
 ) {
   return `
     <!DOCTYPE html>
@@ -127,9 +127,9 @@ export function generatePasswordRedefinitionTemplate(
     <h1>Redefinição de senha</h1>
     <p>Olá, ${nome}</p>
     <p> Para redefinir a sua senha, clique no botão abaixo:</p>
-    <a href="${registrationLink}" class="cta-button">Redefinir senha</a>
+    <a href="${passwordRedefinitionLink}" class="cta-button">Redefinir senha</a>
     <p>Se o botão acima não funcionar, você também pode copiar e colar o seguinte link em seu navegador:</p>
-    <a href="${registrationLink}">${registrationLink}</a>
+    <a href="${passwordRedefinitionLink}">${passwordRedefinitionLink}</a>
     <p>Obrigado!</p>
   </div>
 </body>

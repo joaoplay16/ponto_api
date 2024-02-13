@@ -1,0 +1,7 @@
+{
+  "clean": true,
+  "include": ["src/"],
+  "exclude": ["src/**/Fake*.ts", "src/**/testhelper.ts"],
+  "report-dir": "reports/coverage",
+  "reporter": ["html", "text"]
+}
