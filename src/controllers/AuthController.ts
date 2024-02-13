@@ -1,14 +1,18 @@
 import { type Request, type Response } from "express"
 import AuthError from "../errors/AuthError"
-import DefaultUserRepository from "../repository/DefaultAuthRepository"
+import DefaultUserRepository from "../repository/DefaultUserRepository"
 import AuthUseCase from "../usecases/AuthUseCase"
+import BcryptHashService from "../service/BcryptHashService"
 
 const AuthController = {
   async login(req: Request, res: Response) {
     try {
       const { email, senha } = req.body
 
-      const authUseCase = new AuthUseCase(new DefaultUserRepository())
+      const authUseCase = new AuthUseCase(
+        new DefaultUserRepository(),
+        new BcryptHashService()
+      )
 
       const usuario = await authUseCase.authenticate(email, senha)
 
