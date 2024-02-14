@@ -7,6 +7,7 @@ interface UserRepository {
     limit: number,
     offset: number
   ): Promise<UsersQueryResult>
+  findUserById(id: number): Promise<Usuario | null>
 }
 
 export default UserRepository
