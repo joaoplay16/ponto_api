@@ -10,6 +10,10 @@ class FakeUserRepository implements UserRepository {
       this.users.count = users.length
     }
   }
+  findUserById(id: number): Promise<Usuario | null> {
+    const result = this.users.rows.find((user) => user.id === id)
+    return Promise.resolve(result ?? null)
+  }
 
   getUsers(
     cargo: string,
