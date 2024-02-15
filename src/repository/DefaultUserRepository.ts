@@ -3,6 +3,10 @@ import Usuario, { UsersQueryResult } from "../types/usuario"
 import UserRepository from "./UserRepository"
 
 class DefaultUserRepository implements UserRepository {
+  async create(user: Usuario): Promise<Usuario> {
+    return await UsuarioModel.create(user)
+  }
+
   async findUserById(id: number): Promise<Usuario | null> {
     return await UsuarioModel.findByPk(id)
   }
