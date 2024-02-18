@@ -1,5 +1,6 @@
 import Usuario, { UsersQueryResult } from "../../../types/usuario"
 import UserRepository from "../../../repository/UserRepository"
+import DatabaseOperationError from "../../../errors/DatabaseOperationError"
 
 class FakeUserRepository implements UserRepository {
   users: UsersQueryResult = { rows: [], count: 0 }
@@ -14,6 +15,21 @@ class FakeUserRepository implements UserRepository {
     user.id = this.users.count + 1
     this.users.rows.push(user)
     return Promise.resolve(user)
+  }
+
+  async update(user: Usuario): Promise<void> {
+    let userToUpdateIndex = this.users.rows.findIndex((u) => u.id === user.id)
+    if (userToUpdateIndex !== -1) {
+      this.users.rows[userToUpdateIndex].senha = user.senha
+      return Promise.resolve()
+    } else {
+      throw new DatabaseOperationError(500, "Falha ao atualizar usuário")
+    }
+  }
+
+  findUserByUsername(username: string): Promise<Usuario | null> {
+    let user = this.users.rows.find((user) => user.nome_de_usuario === username)
+    return Promise.resolve(user ?? null)
   }
 
   findUserById(id: number): Promise<Usuario | null> {

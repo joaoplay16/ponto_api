@@ -26,6 +26,23 @@ class DefaultUserRepository implements UserRepository {
     }
   }
 
+  async update(user: Usuario): Promise<void> {
+    let affectedCount = await UsuarioModel.update(user, {
+      where: { id: user?.id },
+    })
+    if (affectedCount[0] > 0) {
+      return Promise.resolve()
+    } else {
+      throw new DatabaseOperationError(500, "Falha ao atualizar usuário")
+    }
+  }
+
+  async findUserByUsername(username: string): Promise<Usuario | null> {
+    return await UsuarioModel.findOne({
+      where: { nome_de_usuario: username },
+    })
+  }
+
   async findUserById(id: number): Promise<Usuario | null> {
     return await UsuarioModel.findByPk(id)
   }
