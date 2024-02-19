@@ -7,7 +7,7 @@ type Usuario = {
     email: string,
     senha: string,
     celular: string,
-    criado_em: string,
+    criado_em: Date,
     e_admin: number,
     ativo: number,
     pontos: Ponto[]
