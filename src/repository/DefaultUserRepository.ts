@@ -45,7 +45,7 @@ class DefaultUserRepository implements UserRepository {
   }
 
   async findUserById(id: number): Promise<Usuario | null> {
-    return await UsuarioModel.findByPk(id)
+    return await UsuarioModel.findByPk(id, { raw: true })
   }
   async getUsers(
     cargo: string,
