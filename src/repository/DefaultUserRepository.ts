@@ -40,6 +40,7 @@ class DefaultUserRepository implements UserRepository {
   async findUserByUsername(username: string): Promise<Usuario | null> {
     return await UsuarioModel.findOne({
       where: { nome_de_usuario: username },
+      raw: true
     })
   }
 
