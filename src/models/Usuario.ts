@@ -22,8 +22,8 @@ class UsuarioModel extends Model {
   declare senha: string
   @Column({ type: DataTypes.STRING })
   declare celular: string
-  @Column({ type: DataTypes.STRING })
-  declare criado_em: string
+  @Column({ type: DataTypes.DATE })
+  declare criado_em: Date
   @Column({ type: DataTypes.INTEGER })
   declare e_admin: number
   @Column({ type: DataTypes.INTEGER })
