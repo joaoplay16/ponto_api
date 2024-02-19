@@ -80,7 +80,7 @@ describe("Test auth use case", () => {
       email: "testemail@example.com",
       senha: "", // Empty password means incomplete registration
       celular: "99982287525",
-      criado_em: "2024-01-01",
+      criado_em: new Date(),
       e_admin: 0,
       ativo: 1,
       pontos: [],
@@ -109,7 +109,7 @@ describe("Test auth use case", () => {
       email: "testemail@example.com",
       senha: "123456789", // Empty password means incomplete registration
       celular: "99982287525",
-      criado_em: "2024-01-01",
+      criado_em: new Date(),
       e_admin: 0,
       ativo: 0,
       pontos: [],
@@ -138,7 +138,7 @@ describe("Test auth use case", () => {
       email: "testemail@example.com",
       senha: "123456789", // Empty password means incomplete registration
       celular: "99982287525",
-      criado_em: "2024-01-01",
+      criado_em: new Date(),
       e_admin: 0,
       ativo: 1,
       pontos: [],
@@ -167,7 +167,7 @@ describe("Test auth use case", () => {
       email: "testemail@example.com",
       senha: "123456789", 
       celular: "99982287525",
-      criado_em: "2024-01-01",
+      criado_em: new Date(),
       e_admin: 0,
       ativo: 1,
       pontos: [],
