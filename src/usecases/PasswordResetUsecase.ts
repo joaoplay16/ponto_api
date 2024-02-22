@@ -1,16 +1,23 @@
 import "dotenv/config"
-import jwt, { Secret } from "jsonwebtoken"
 import ApiRequestError from "../errors/ApiRequestError"
 import UserRepository from "../repository/UserRepository"
 import HashService from "../service/HashService"
+import TokenService from "../service/TokenService"
+import { isEmail } from "../util/email"
 
 class PasswordResetUsecase {
   userRepository: UserRepository
   hashService: HashService
+  tokenService: TokenService
 
-  constructor(userRepository: UserRepository, hashService: HashService) {
+  constructor(
+    userRepository: UserRepository,
+    hashService: HashService,
+    tokenService: TokenService
+  ) {
     this.userRepository = userRepository
     this.hashService = hashService
+    this.tokenService = tokenService
   }
 
   async resetPassword(token?: string, password?: string): Promise<void> {
@@ -25,34 +32,25 @@ class PasswordResetUsecase {
       throw new ApiRequestError(400, "A senha deve ter 8 ou mais caracteres.")
     }
 
-    const jwtSecretKey: Secret = process.env.JWT_SECRET_KEY || ""
+    const decoded = this.tokenService.verify(token)
 
-    try {
-      const decoded = jwt.verify(token, jwtSecretKey)
-      if (decoded) {
-        const { email } = decoded as { email: string }
+    const { email } = decoded as { email: string }
+    
+    if (email && isEmail(email)) {
+      var passwordHash = ""
 
-        var passwordHash = ""
+      passwordHash = this.hashService.hashSync(password)
 
-        passwordHash = this.hashService.hashSync(password)
+      let user = await this.userRepository.findUserByEmail(email)
 
-        let user = await this.userRepository.findUserByEmail(email)
-
-        if (user) {
-          user.senha = passwordHash
-          await this.userRepository.update(user)
-        } else {
-          throw new ApiRequestError(404, "Este email não está cadastrado")
-        }
+      if (user) {
+        user.senha = passwordHash
+        await this.userRepository.update(user)
+      } else {
+        throw new ApiRequestError(404, "Este email não está cadastrado")
       }
-    } catch (err: unknown) {
-      if (
-        err instanceof Error &&
-        ["JsonWebTokenError", "TokenExpiredError"].includes(err.name)
-      ) {
-        throw new ApiRequestError(401, "Token inválido ou expirado.")
-      }
-      throw err
+    }else{
+      throw new ApiRequestError(400, "E-mail inválido")
     }
   }
 }
