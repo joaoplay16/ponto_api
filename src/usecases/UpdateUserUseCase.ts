@@ -13,7 +13,7 @@ class UpdateUserUseCase {
     this.hashService = hashService
   }
 
-  async update(user: Usuario): Promise<void> {
+  async update(user: Partial<Usuario>): Promise<void> {
     const {
       nome,
       email,
@@ -43,14 +43,14 @@ class UpdateUserUseCase {
       )
     }
 
-    if (!isEmail(email)) {
+    if (!isEmail(email!)) {
       throw new ApiRequestError(400, "Informe um e-mail válido.")
     }
 
     var passwordHash = ""
 
-    if (senha.length >= 8) {
-      passwordHash = this.hashService.hashSync(senha)
+    if (senha!.length >= 8) {
+      passwordHash = this.hashService.hashSync(senha!)
     } else {
       throw new ApiRequestError(400, "A senha deve ter 8 ou mais caracteres.")
     }
@@ -60,7 +60,7 @@ class UpdateUserUseCase {
       ...(passwordHash && { senha: passwordHash }),
     }
 
-    return await this.userRepository.update(updatedUser)
+    return await this.userRepository.update(updatedUser as Usuario)
   }
 }
 
