@@ -1,3 +1,4 @@
+import { SequelizeScopeError } from "sequelize"
 import DatabaseOperationError from "../errors/DatabaseOperationError"
 import UsuarioModel from "../models/Usuario"
 import Usuario, { UsersQueryResult } from "../types/usuario"
@@ -27,13 +28,32 @@ class DefaultUserRepository implements UserRepository {
   }
 
   async update(user: Usuario): Promise<void> {
-    let affectedCount = await UsuarioModel.update(user, {
-      where: { id: user?.id },
-    })
-    if (affectedCount[0] > 0) {
-      return Promise.resolve()
-    } else {
-      throw new DatabaseOperationError(500, "Falha ao atualizar usuário")
+    try {   
+      let affectedCount = await UsuarioModel.update(user, {
+        where: { id: user?.id },
+      })
+      if (affectedCount[0] > 0) {
+        return Promise.resolve()
+      } else {
+        console.log(user);
+        throw new DatabaseOperationError(500, "Falha ao atualizar usuário")
+      }
+    } catch (error: any) {
+      if (error?.original?.code == "ER_DUP_ENTRY") {
+        switch (error.errors[0].path) {
+          case "nome_de_usuario":
+            throw new DatabaseOperationError(
+              409,
+              "Este nome de usuário já foi cadastrado"
+            )
+          case "email":
+            throw new DatabaseOperationError(
+              409,
+              "O endereço de e-mail já foi cadastrado"
+            )
+        }
+      }
+      throw error
     }
   }
 
