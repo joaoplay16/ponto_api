@@ -3,7 +3,7 @@ import Usuario, { UsersQueryResult } from "../types/usuario"
 interface UserRepository {
   findUserByEmail(email: string): Promise<Usuario | null>
   getUsers(
-    cargo: string,
+    cargo: string | undefined,
     limit: number,
     offset: number
   ): Promise<UsersQueryResult>

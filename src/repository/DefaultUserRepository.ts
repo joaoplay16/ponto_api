@@ -28,14 +28,14 @@ class DefaultUserRepository implements UserRepository {
   }
 
   async update(user: Usuario): Promise<void> {
-    try {   
+    try {
       let affectedCount = await UsuarioModel.update(user, {
         where: { id: user?.id },
       })
       if (affectedCount[0] > 0) {
         return Promise.resolve()
       } else {
-        console.log(user);
+        console.log(user)
         throw new DatabaseOperationError(500, "Falha ao atualizar usuário")
       }
     } catch (error: any) {
@@ -60,7 +60,7 @@ class DefaultUserRepository implements UserRepository {
   async findUserByUsername(username: string): Promise<Usuario | null> {
     return await UsuarioModel.findOne({
       where: { nome_de_usuario: username },
-      raw: true
+      raw: true,
     })
   }
 
@@ -68,12 +68,12 @@ class DefaultUserRepository implements UserRepository {
     return await UsuarioModel.findByPk(id, { raw: true })
   }
   async getUsers(
-    cargo: string,
+    cargo: string | undefined,
     limit: number,
     offset: number
   ): Promise<UsersQueryResult> {
     return await UsuarioModel.findAndCountAll({
-      where: { cargo },
+      ...(cargo && { where: { cargo } }),
       limit: limit,
       offset: offset,
       order: [["nome", "ASC"]],

@@ -15,7 +15,7 @@ class GetUsersUseCase {
     offset?: string
   ): Promise<UsersQueryResult> {
     const users = await this.userRepository.getUsers(
-      cargo || "colaborador",
+      cargo,
       parseInt(limit as string) || 20,
       parseInt(offset as string) || 0
     )
