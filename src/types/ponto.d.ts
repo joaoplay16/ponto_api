@@ -5,4 +5,6 @@ type Ponto = {
     hora_saida: string?
 }
 
+export type PontosQueryResult = { rows: Ponto[]; count: number }
+
 export default Ponto
