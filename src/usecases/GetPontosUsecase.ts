@@ -9,7 +9,7 @@ class GetPontosUsecase {
     this.repository = repository
   }
 
-  getAll(
+  async getAll(
     user_id?: string,
     limit?: string,
     offset?: string
