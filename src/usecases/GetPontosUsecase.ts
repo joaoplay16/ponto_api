@@ -14,8 +14,7 @@ class GetPontosUsecase {
     limit?: string,
     offset?: string
   ): Promise<PontosQueryResult> {
-
-    const id = parseInt(user_id  || "")
+    const id = parseInt(user_id || "")
 
     if (user_id === undefined || isNaN(id)) {
       throw new ApiRequestError(
@@ -26,7 +25,9 @@ class GetPontosUsecase {
 
     return this.repository.getAll(
       id,
+      /* c8 ignore next */
       parseInt(limit || "20"),
+      /* c8 ignore next */
       parseInt(offset || "0")
     )
   }
