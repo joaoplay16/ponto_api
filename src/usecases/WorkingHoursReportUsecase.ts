@@ -26,14 +26,7 @@ class WorkingHoursReportUsecase {
         "Requisição inválida. Verifique os parâmetros fornecidos."
       )
     }
-
-    if (isNaN(month)) {
-      throw new ApiRequestError(
-        400,
-        "Requisição inválida. Verifique os parâmetros fornecidos."
-      )
-    }
-
+    
     return this.pontoRepository.workingHoursReport(
       id,
       month,
