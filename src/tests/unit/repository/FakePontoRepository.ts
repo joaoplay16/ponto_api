@@ -1,5 +1,8 @@
 import PontoRepository from "../../../repository/PontoRepository"
-import Ponto, { PontosQueryResult } from "../../../types/ponto"
+import Ponto, {
+  PontosQueryResult,
+  PontosReportQueryResult,
+} from "../../../types/ponto"
 
 class FakePontoRepository implements PontoRepository {
   pontos: Ponto[] = []
@@ -22,6 +25,16 @@ class FakePontoRepository implements PontoRepository {
     }
 
     return Promise.resolve({ count: found.length, rows: found })
+  }
+
+  workingHoursReport(
+    user_id: number,
+    mes: number,
+    ano: number,
+    limit: number,
+    offset: number
+  ): Promise<PontosReportQueryResult> {
+    return Promise.resolve( {count: 0, rows: []})
   }
 }
 
