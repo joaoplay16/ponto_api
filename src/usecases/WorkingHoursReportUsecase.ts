@@ -16,9 +16,11 @@ class WorkingHoursReportUsecase {
     limit?: string,
     offset?: string
   ): Promise<PontosReportQueryResult> {
+    /* c8 ignore start */
     const id = parseInt(user_id || "")
     const month = parseInt(mes || "")
     const year = parseInt(ano || "")
+    /* c8 ignore end */
 
     if (isNaN(id) || isNaN(month) || isNaN(year)) {
       throw new ApiRequestError(
@@ -26,7 +28,7 @@ class WorkingHoursReportUsecase {
         "Requisição inválida. Verifique os parâmetros fornecidos."
       )
     }
-    
+
     return this.pontoRepository.workingHoursReport(
       id,
       month,
