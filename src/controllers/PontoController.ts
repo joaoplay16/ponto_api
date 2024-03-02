@@ -1,33 +1,25 @@
 import { type Request, type Response } from "express"
 import { Op, Sequelize } from "sequelize"
+import DatabaseOperationError from "../errors/DatabaseOperationError"
+import PontoModel from "../models/Ponto"
+import DefaultPontoRepository from "../repository/DefaultPontoRepository"
+import GetPontosUsecase from "../usecases/GetPontosUsecase"
+import WorkingHoursReportUsecase from "../usecases/WorkingHoursReportUsecase"
 const operatorsAliases = {
   $and: Op.and,
 }
-import PontoModel from "../models/Ponto"
 const PontoController = {
   async index(req: Request, res: Response): Promise<void> {
     try {
       const { id_usuario } = req.params
       const { limit, offset } = req.query
 
-      const pontosPaginados = await PontoModel.findAndCountAll({
-        where: {
-          usuario_id: id_usuario,
-        },
-        attributes: [
-          "data",
-          [Sequelize.fn("dayofweek", Sequelize.col("data")), "dia_da_semana"],
-          "hora_entrada",
-          "hora_saida",
-        ],
-        order: [
-          ["id", "DESC"],
-          ["data", "DESC"],
-          ["hora_entrada", "DESC"],
-        ],
-        limit: parseInt(limit as string) || 20,
-        offset: parseInt(offset as string) || 0,
-      })
+      const usecase = new GetPontosUsecase(new DefaultPontoRepository())
+      const pontosPaginados = await usecase.getAll(
+        id_usuario,
+        limit as string,
+        offset as string
+      )
 
       if (pontosPaginados != null) {
         res.json(pontosPaginados)
@@ -35,8 +27,11 @@ const PontoController = {
         res.status(404).json({ error: "Nenhum registro de ponto encontrado" })
       }
     } catch (error) {
-      console.error("Erro ao buscar registros de ponto:", error)
-      res.status(500).json({ error: "Erro interno do servidor" })
+      if (error instanceof DatabaseOperationError) {
+        res.status(error.statusCode).json(error.errorMessage)
+        return
+      }
+      res.status(500).json({ error: "Erro interno do servidor", info: error })
     }
   },
 
@@ -45,57 +40,23 @@ const PontoController = {
       const { id_usuario } = req.params
       const { limit, offset, mes, ano } = req.query
 
-      const pontosPaginados = await PontoModel.findAndCountAll({
-        where: {
-          usuario_id: id_usuario,
-          [operatorsAliases.$and]: [
-            mes &&
-              Sequelize.where(
-                Sequelize.fn("month", Sequelize.col("data")),
-                mes
-              ),
-            ano &&
-              Sequelize.where(Sequelize.fn("year", Sequelize.col("data")), ano),
-          ],
-        },
-        attributes: [
-          "data",
-          [Sequelize.fn("dayofweek", Sequelize.col("data")), "dia_da_semana"],
-          [
-            Sequelize.fn(
-              "SEC_TO_TIME",
-              Sequelize.fn(
-                "SUM",
-                Sequelize.fn(
-                  "ABS",
-                  Sequelize.fn(
-                    "TIME_TO_SEC",
-                    Sequelize.fn(
-                      "TIMEDIFF",
-                      Sequelize.col("hora_entrada"),
-                      Sequelize.col("hora_saida")
-                    )
-                  )
-                )
-              )
-            ),
-            "horas_trabalhadas",
-          ],
-        ],
-        group: ["usuario_id", "data"],
-        order: [["data", "DESC"]],
-        limit: parseInt(limit as string) || 20,
-        offset: parseInt(offset as string) || 0,
-      })
+      const usecase = new WorkingHoursReportUsecase(
+        new DefaultPontoRepository()
+      )
 
-      if (pontosPaginados != null) {
+      const pontosPaginados = await usecase.workingHoursReport(
+        id_usuario,
+        mes as string,
+        ano as string,
+        limit as string,
+        offset as string
+      )
+
         res.json({
           count: pontosPaginados.rows.length,
           rows: pontosPaginados.rows,
         })
-      } else {
-        res.status(404).json({ error: "Nenhum registro de ponto encontrado" })
-      }
+    
     } catch (error) {
       console.error("Erro ao buscar registros de ponto:", error)
       res.status(500).json({ error: "Erro interno do servidor" })
