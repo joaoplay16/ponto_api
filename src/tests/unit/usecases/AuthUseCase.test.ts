@@ -177,7 +177,7 @@ describe("Test auth use case", () => {
       sinon.promise<Usuario>().resolve(testUser)
     )
 
-    expect(
+    await expect(
      authUseCase?.authenticate(testUser.email, "123456789")
     ).to.eventually.be.fulfilled.and.deep.equal(testUser)
   })
