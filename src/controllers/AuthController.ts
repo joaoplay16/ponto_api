@@ -16,6 +16,8 @@ const AuthController = {
 
       const usuario = await authUseCase.authenticate(email, senha)
 
+      req.session.usuario = usuario
+
       res.json(usuario)
     } catch (error) {
       if (error instanceof AuthError) {
